@@ -1,28 +1,29 @@
 import numpy as np
 import cv2, pyautogui, sys, time, pyaudio, wave
+from mss import mss
+from PIL import Image
 
 user_screen_size = pyautogui.size()
 screen_size = (int(sys.argv[1]), int(sys.argv[2]))
 
-channels = 1
-chunk = 1024
-sample_rate = 44100
-record_secounds = 5
-#FORMAT = pyaudio.paInt16
-#p = pyaudio.PyAudio()
-#stream = p.open(format=FORMAT, channels=channels, rate=sample_rate, input=True, output=True, franes_per_buffer=chunk)
+bound_box = {'top': 20, 'left': 0, 'width': screen_size[0], 'height': screen_size[1]}
 
-Output = []
+sct = mss()
+p = pyaudio.PyAudio()
+
+stream = p.open(format=pyaudio.paInt16, channels=1, rate=44100, input=True, output=True, frames_per_buffer=1024)
+
 while True:
-    #Show = {}
-    img = pyautogui.screenshot()
-    frame = np.array(img)
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    #voice = stream.read(chunk)
-    #Show["video"] = frame
-    #Show["audio"] = voice
-    #Output.append(Show)
-    if cv2.waitKey(10) == ord("q"):
+    Data = {}
+    frame = sct.grab(bound_box)
+    frame = np.array(frame)
+    sound = stream.read(1024)
+    Data["screen"] = frame
+    Data["audio"] = sound
+    print(Data)
+    R = cv2.resize(frame, (int(screen_size[0]/2), int(screen_size[1]/2)))
+    cv2.imshow("screen", R)
+    if cv2.waitKey(20) & 0xFF == ord("q"):
+        stream.stop_stream()
+        stream.close()
         break
-cv2.destroyAllWindows()
-print("test")
