@@ -3,7 +3,6 @@ import numpy as np
 import sys
 import imutils, argparse
 from collections import deque
-import pyautogui as pgi
 
 video = cv2.VideoCapture(0)
 
